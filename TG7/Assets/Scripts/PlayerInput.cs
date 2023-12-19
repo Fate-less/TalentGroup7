@@ -6,32 +6,36 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
+    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float jumpForce = 10f;
+    [SerializeField] float deathDelay = 3f;
 
     private Rigidbody2D rb;
     private bool isGrounded;
     private TMP_InputField inputField;
     private string moveState;
+    private Vector3 spawnPos;
+    private bool freeze = false;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        spawnPos = gameObject.transform.position;
         inputField = GameObject.Find("InputField").GetComponent<TMP_InputField>();
         inputField.Select();
     }
 
     private void Update()
     {
-        if (moveState == "left")
+        if (moveState == "left" && !freeze)
         {
             MoveLeft();
         }
-        else if (moveState == "right")
+        else if (moveState == "right" && !freeze)
         {
             MoveRight();
         }
-        else if (moveState == "stop")
+        else if (moveState == "stop" && !freeze)
         {
             StopMoving();
         }
@@ -93,6 +97,19 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
         }
+        if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            rb.velocity = Vector2.zero;
+            freeze = true;
+            StartCoroutine(Timer());
+        }
+    }
+
+    IEnumerator Timer()
+    {
+        yield return new WaitForSeconds(deathDelay);
+        gameObject.transform.position = spawnPos;
+        freeze = false;
     }
 }
 
