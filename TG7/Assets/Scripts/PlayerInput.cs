@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float jumpForce = 10f;
+    [SerializeField] float currentSpeed = 5f;
+    [SerializeField] float acceleration = 5f;
+    [SerializeField] float jumpHeight = 10f;
+    [SerializeField] float jumpGravity = 1;
+    [SerializeField] float fallGravity = 2;
     [SerializeField] float deathDelay = 3f;
 
     private Rigidbody2D rb;
@@ -16,6 +21,8 @@ public class PlayerController : MonoBehaviour
     private string moveState;
     private Vector3 spawnPos;
     private bool freeze = false;
+    private float horizontalInput;
+    private float jumpForce;
 
     private void Start()
     {
@@ -27,33 +34,43 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (moveState == "left" && !freeze)
+        currentSpeed = Mathf.MoveTowards(currentSpeed, moveSpeed * horizontalInput, acceleration * Time.deltaTime);
+        if ((moveState == "left" && !freeze) || (moveState == "right" && !freeze))
         {
-            MoveLeft();
-        }
-        else if (moveState == "right" && !freeze)
-        {
-            MoveRight();
+            MovePlayer();
         }
         else if (moveState == "stop" && !freeze)
         {
             StopMoving();
         }
+        if(rb.velocity.y > 0)
+        {
+            rb.gravityScale = jumpGravity;
+        }
+        else
+        {
+            rb.gravityScale = fallGravity;
+        }
     }
-    public void Input(string word)
+    public void InputWord(string word)
     {
         switch (word)
         {
             case "left":
+                currentSpeed = 0;
                 moveState = "left";
+                horizontalInput = -1;
                 break;
             case "right":
+                currentSpeed = 0;
                 moveState = "right";
+                horizontalInput = 1;
                 break;
             case "jump":
                 Jump();
                 break;
             case "stop":
+                currentSpeed = 0;
                 moveState = "stop";
                 break;
         }
@@ -66,20 +83,16 @@ public class PlayerController : MonoBehaviour
         inputField.text = ("");
     }
 
-    private void MoveLeft()
+    private void MovePlayer()
     {
-        rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
-    }
-
-    private void MoveRight()
-    {
-        rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(currentSpeed, rb.velocity.y);
     }
 
     private void Jump()
     {
         if (isGrounded)
         {
+            jumpForce = Mathf.Sqrt(2f * jumpHeight * jumpGravity);
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             isGrounded = false;
         }
@@ -99,9 +112,18 @@ public class PlayerController : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Obstacle"))
         {
-            rb.velocity = Vector2.zero;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
             freeze = true;
+            moveState = null;
             StartCoroutine(Timer());
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Door"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
 
@@ -109,6 +131,8 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(deathDelay);
         gameObject.transform.position = spawnPos;
+        rb.constraints = RigidbodyConstraints2D.None;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         freeze = false;
     }
 }

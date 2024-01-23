@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - Obstacle
+  - Wall
+  - Door
   layers:
   - Default
   - TransparentFX
