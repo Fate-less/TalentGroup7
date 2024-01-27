@@ -6,6 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Levels/Tutorial Level.unity
+    guid: 17efa51c0b9d34b4fa56268dfb5e1b6b
+  - enabled: 1
+    path: Assets/Scenes/Levels/Platform Tutorial.unity
+    guid: a4416c0c7b551904481f5cb9859e696f
+  - enabled: 1
+    path: Assets/Scenes/Levels/Stop Tutorial.unity
+    guid: ab6acec7ed276da4fa92317a0c5eb368
+  - enabled: 1
+    path: Assets/Scenes/Levels/Wind up Level.unity
+    guid: a473001c4ec44b145813b25234e98952
+  - enabled: 1
+    path: Assets/Scenes/Levels/Hard Level 1.unity
+    guid: 6b42969cf1c68304c8ccbdc180fa96c8
+  - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1

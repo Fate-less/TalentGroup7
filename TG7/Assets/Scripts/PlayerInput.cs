@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float jumpGravity = 1;
     [SerializeField] float fallGravity = 2;
     [SerializeField] float deathDelay = 3f;
+    [SerializeField] Vector2 groundCheckOffset;
+    [SerializeField] Vector2 groundCheckSize;
 
     private Rigidbody2D rb;
     private bool isGrounded;
@@ -34,6 +36,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        GroundCheck();
         currentSpeed = Mathf.MoveTowards(currentSpeed, moveSpeed * horizontalInput, acceleration * Time.deltaTime);
         if ((moveState == "left" && !freeze) || (moveState == "right" && !freeze))
         {
@@ -103,13 +106,14 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(0f, rb.velocity.y);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void GroundCheck()
     {
-        // Check if the player is grounded
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
+        Collider2D collider = Physics2D.OverlapBox((Vector2)transform.position + groundCheckOffset, groundCheckSize, 0f);
+        isGrounded = (collider != null && (collider.gameObject.CompareTag("Ground") || (rb.velocity.y <= .1f && collider.gameObject.CompareTag("Platform"))));
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
@@ -117,11 +121,7 @@ public class PlayerController : MonoBehaviour
             moveState = null;
             StartCoroutine(Timer());
         }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Door"))
+        if (isGrounded && collision.gameObject.CompareTag("Door"))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
