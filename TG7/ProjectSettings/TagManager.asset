@@ -8,6 +8,7 @@ TagManager:
   - Obstacle
   - Wall
   - Door
+  - Platform
   layers:
   - Default
   - TransparentFX
