@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Vector2 groundCheckSize;
 
     private Rigidbody2D rb;
+    private SpriteRenderer sr;
+    private Animator anim;
     private bool isGrounded;
     private TMP_InputField inputField;
     private string moveState;
@@ -29,6 +31,8 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
         spawnPos = gameObject.transform.position;
         inputField = GameObject.Find("InputField").GetComponent<TMP_InputField>();
         inputField.Select();
@@ -37,6 +41,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         GroundCheck();
+        Animate();
         currentSpeed = Mathf.MoveTowards(currentSpeed, moveSpeed * horizontalInput, acceleration * Time.deltaTime);
         if ((moveState == "left" && !freeze) || (moveState == "right" && !freeze))
         {
@@ -57,16 +62,20 @@ public class PlayerController : MonoBehaviour
     }
     public void InputWord(string word)
     {
+        if(freeze)
+            return;
         switch (word)
         {
             case "left":
                 currentSpeed = 0;
                 moveState = "left";
+                sr.flipX = true;
                 horizontalInput = -1;
                 break;
             case "right":
                 currentSpeed = 0;
                 moveState = "right";
+                sr.flipX = false;
                 horizontalInput = 1;
                 break;
             case "jump":
@@ -112,28 +121,51 @@ public class PlayerController : MonoBehaviour
         isGrounded = (collider != null && (collider.gameObject.CompareTag("Ground") || (rb.velocity.y <= .1f && collider.gameObject.CompareTag("Platform"))));
     }
 
+    private void Animate()
+    {
+        if(freeze)
+        {
+            anim.Play("PlayerDeath");
+            return;
+        }
+        if(!isGrounded)
+        {
+            anim.Play(rb.velocity.y > 0f?"PlayerJump":"PlayerMidair");
+            return;
+        }
+        anim.Play(moveState == "stop" || moveState == null?"PlayerIdle":"PlayerWalk");
+    }
+
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Obstacle"))
+        if (!freeze && collision.gameObject.CompareTag("Obstacle"))
         {
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
             freeze = true;
-            moveState = null;
             StartCoroutine(Timer());
         }
         if (isGrounded && collision.gameObject.CompareTag("Door"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            Respawn();
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
 
     IEnumerator Timer()
     {
         yield return new WaitForSeconds(deathDelay);
+        Respawn();
+    }
+
+    private void Respawn()
+    {
         gameObject.transform.position = spawnPos;
         rb.constraints = RigidbodyConstraints2D.None;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.velocity = Vector2.zero;
         freeze = false;
+        moveState = null;
+        sr.flipX = false;
     }
 }
 
