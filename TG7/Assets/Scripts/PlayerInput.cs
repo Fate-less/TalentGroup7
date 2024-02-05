@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -13,7 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float jumpHeight = 10f;
     [SerializeField] float jumpGravity = 1;
     [SerializeField] float fallGravity = 2;
-    [SerializeField] float deathDelay = 3f;
+    [SerializeField] float deathDelay = 3f, goalDelay = 1f;
+    [SerializeField] UnityEvent OnReachGoal;
     [SerializeField] Vector2 groundCheckOffset;
     [SerializeField] Vector2 groundCheckSize;
 
@@ -62,8 +64,11 @@ public class PlayerController : MonoBehaviour
     }
     public void InputWord(string word)
     {
+        ClearInput();
+        inputField.ActivateInputField();
         if(freeze)
             return;
+        
         switch (word)
         {
             case "left":
@@ -86,8 +91,6 @@ public class PlayerController : MonoBehaviour
                 moveState = "stop";
                 break;
         }
-        ClearInput();
-        inputField.ActivateInputField();
     }
 
     public void ClearInput()
@@ -136,6 +139,8 @@ public class PlayerController : MonoBehaviour
         anim.Play(moveState == "stop" || moveState == null?"PlayerIdle":"PlayerWalk");
     }
 
+    bool hasReachedGoal = false;
+
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (!freeze && collision.gameObject.CompareTag("Obstacle"))
@@ -144,10 +149,14 @@ public class PlayerController : MonoBehaviour
             freeze = true;
             StartCoroutine(Timer());
         }
-        if (isGrounded && collision.gameObject.CompareTag("Door"))
+        if(!hasReachedGoal && collision.gameObject.CompareTag("Door"))
         {
-            Respawn();
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            moveState = "stop";
+            if (isGrounded)
+            {
+                hasReachedGoal = true;
+                StartCoroutine(ReachGoal());
+            }
         }
     }
 
@@ -155,6 +164,13 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(deathDelay);
         Respawn();
+    }
+
+    IEnumerator ReachGoal()
+    {
+        OnReachGoal.Invoke();
+        yield return new WaitForSeconds(goalDelay);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     private void Respawn()
