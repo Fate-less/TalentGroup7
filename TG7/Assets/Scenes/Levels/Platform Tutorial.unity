@@ -6019,6 +6019,42 @@ PrefabInstance:
       propertyPath: m_LocalPosition.x
       value: 2.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: jumpSound
+      value: 
+      objectReference: {fileID: 8300000, guid: fee8e210fd2bbee40a6103df4e61b325, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: deathSound
+      value: 
+      objectReference: {fileID: 8300000, guid: dddd3ac74c37abf44af6828b1b6c24a6, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: doorOpenSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 6a951fad2332ed64397dd0e58037331a, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: doorClosedSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 153e243f17ba7b741b77ba859e397472, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: walkSounds.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: walkSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 6c05c805572cb8243950c0a507a28ac9, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: walkSounds.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 3da24779e2e68064b962e352e4d74ed9, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: walkSounds.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: f9c7d20052afdf74c8120e727ea8c1ee, type: 3}
+    - target: {fileID: 5655453197008525542, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
+      propertyPath: walkSounds.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 094a8b44be982504b997144f42fc800e, type: 3}
     - target: {fileID: 5792922111878333185, guid: e0dd6d5fb09ed6342b9e1ebb0b18f4e4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

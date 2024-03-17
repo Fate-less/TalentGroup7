@@ -18,6 +18,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] UnityEvent OnReachGoal;
     [SerializeField] Vector2 groundCheckOffset;
     [SerializeField] Vector2 groundCheckSize;
+    [SerializeField] AudioClip[] walkSounds;
+    [SerializeField] AudioClip deathSound;
+    [SerializeField] AudioClip jumpSound;
+    [SerializeField] AudioClip doorOpenSound;
+    [SerializeField] AudioClip doorClosedSound;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -29,12 +34,16 @@ public class PlayerController : MonoBehaviour
     private bool freeze = false;
     private float horizontalInput;
     private float jumpForce;
+    private AudioSource audioSource;
+    private SaveLevel saveLevel;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        saveLevel = GetComponent<SaveLevel>();
+        audioSource = GetComponent<AudioSource>();
         spawnPos = gameObject.transform.position;
         inputField = GameObject.Find("InputField").GetComponent<TMP_InputField>();
         inputField.Select();
@@ -101,12 +110,17 @@ public class PlayerController : MonoBehaviour
     private void MovePlayer()
     {
         rb.velocity = new Vector2(currentSpeed, rb.velocity.y);
+        if (!audioSource.isPlaying)
+        {
+            WalkSound();
+        }
     }
 
     private void Jump()
     {
         if (isGrounded)
         {
+            audioSource.PlayOneShot(jumpSound);
             jumpForce = Mathf.Sqrt(2f * jumpHeight * jumpGravity);
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             isGrounded = false;
@@ -116,6 +130,7 @@ public class PlayerController : MonoBehaviour
     private void StopMoving()
     {
         rb.velocity = new Vector2(0f, rb.velocity.y);
+        audioSource.Stop();
     }
 
     private void GroundCheck()
@@ -145,12 +160,16 @@ public class PlayerController : MonoBehaviour
     {
         if (!freeze && collision.gameObject.CompareTag("Obstacle"))
         {
+            audioSource.Stop();
+            audioSource.PlayOneShot(deathSound);
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
             freeze = true;
             StartCoroutine(Timer());
         }
         if(!hasReachedGoal && collision.gameObject.CompareTag("Door"))
         {
+            audioSource.Stop();
+            audioSource.PlayOneShot(doorOpenSound);
             moveState = "stop";
             if (isGrounded)
             {
@@ -170,7 +189,9 @@ public class PlayerController : MonoBehaviour
     {
         OnReachGoal.Invoke();
         yield return new WaitForSeconds(goalDelay);
+        audioSource.PlayOneShot(doorOpenSound);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        saveLevel.SaveGame(saveLevel.LoadGame() + 1);
     }
 
     private void Respawn()
@@ -182,6 +203,14 @@ public class PlayerController : MonoBehaviour
         freeze = false;
         moveState = null;
         sr.flipX = false;
+        ClearInput();
+    }
+
+    public void WalkSound()
+    {
+        AudioClip randomClip = walkSounds[Random.Range(0, walkSounds.Length)];
+        audioSource.clip = randomClip;
+        audioSource.Play();
     }
 }
 
